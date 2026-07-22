@@ -18,6 +18,7 @@ func (s Server) Handler() http.Handler {
 		writeJSON(w, http.StatusOK, map[string]any{"status": "ok"})
 	})
 	mux.HandleFunc("POST /v1/recommendations", s.handleRecommendations)
+	mux.HandleFunc("GET /v1/decisions/{decision_id}", s.handleDecisionLookup)
 	mux.HandleFunc("POST /v1/events", s.handleEvents)
 	return mux
 }
@@ -31,6 +32,24 @@ func (s Server) handleRecommendations(w http.ResponseWriter, r *http.Request) {
 	decision, err := s.Engine.Decide(req)
 	if err != nil {
 		writeJSON(w, http.StatusBadRequest, errorResponse("DECISION_FAILED", err.Error()))
+		return
+	}
+	writeJSON(w, http.StatusOK, decision)
+}
+
+func (s Server) handleDecisionLookup(w http.ResponseWriter, r *http.Request) {
+	decisionID := strings.TrimSpace(r.PathValue("decision_id"))
+	if decisionID == "" {
+		writeJSON(w, http.StatusBadRequest, errorResponse("INVALID_DECISION_ID", "decision_id is required"))
+		return
+	}
+	decision, found, err := s.Engine.LookupDecision(decisionID)
+	if err != nil {
+		writeJSON(w, http.StatusServiceUnavailable, errorResponse("DECISION_LOOKUP_UNAVAILABLE", err.Error()))
+		return
+	}
+	if !found {
+		writeJSON(w, http.StatusNotFound, errorResponse("DECISION_NOT_FOUND", "decision was not found"))
 		return
 	}
 	writeJSON(w, http.StatusOK, decision)

@@ -26,5 +26,16 @@ services:
       - "8080:8080"
     restart: unless-stopped
 
+  gmf-worker:
+    build: .
+    entrypoint: ["/gmf-worker"]
+    environment:
+      DATABASE_URL: "postgres://gmf:gmf@postgres:5432/gmf_core?sslmode=disable"
+      OUTBOX_POLL_INTERVAL: "1s"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
 volumes:
   gmf-postgres:
