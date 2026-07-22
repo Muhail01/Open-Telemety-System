@@ -29,6 +29,26 @@ paths:
                 $ref: '#/components/schemas/Decision'
         '400':
           description: Invalid request
+  /v1/decisions/{decision_id}:
+    get:
+      summary: Retrieve a persisted decision for debugging and explainability
+      parameters:
+        - in: path
+          name: decision_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Persisted decision
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Decision'
+        '404':
+          description: Decision not found
+        '503':
+          description: Decision lookup is unavailable for the configured store
   /v1/events:
     post:
       summary: Ingest an idempotent telemetry event
