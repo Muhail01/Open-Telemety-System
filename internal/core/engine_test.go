@@ -3,9 +3,9 @@ package core_test
 import (
 	"testing"
 
-	"github.com/Muhail01/Open-Telemety-System/internal/core"
-	"github.com/Muhail01/Open-Telemety-System/internal/demo"
-	"github.com/Muhail01/Open-Telemety-System/internal/memory"
+	"github.com/Muhail01/GMF-Core/internal/core"
+	"github.com/Muhail01/GMF-Core/internal/demo"
+	"github.com/Muhail01/GMF-Core/internal/memory"
 )
 
 func TestDecisionIsDeterministicForSameCandidates(t *testing.T) {
