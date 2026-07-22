@@ -4,7 +4,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/Muhail01/Open-Telemety-System/internal/core"
+	"github.com/Muhail01/GMF-Core/internal/core"
 )
 
 // MetricSink is deliberately minimal so deployments can adapt it to an
