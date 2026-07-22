@@ -1,0 +1,41 @@
+name: Feature request
+about: Propose an integration, adapter, SDK, runtime capability, or developer-experience improvement.
+title: "feat: "
+labels:
+  - enhancement
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping improve GMF Core. Please keep proposals vendor-neutral and avoid including production secrets, private marketplace data, proprietary coefficients, or credentials.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What problem or integration gap should this solve?
+      placeholder: Describe the concrete use case.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: Describe the API, adapter, SDK, example, or behavior you would add.
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Suggested scope
+      description: What should be included and explicitly excluded?
+  - type: textarea
+    id: testing
+    attributes:
+      label: Testing / validation
+      description: How should we prove the change works?
+  - type: checkboxes
+    id: contribution
+    attributes:
+      label: Contribution
+      options:
+        - label: I am interested in opening a pull request for this.
