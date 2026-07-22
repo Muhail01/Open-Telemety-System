@@ -1,0 +1,48 @@
+name: Bug report
+about: Report a reproducible problem in GMF Core.
+title: "bug: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please provide a minimal reproducible case using synthetic or non-sensitive data. Never include credentials, tokens, private endpoints, production user data, or proprietary marketplace configuration.
+  - type: textarea
+    id: summary
+    attributes:
+      label: What happened?
+      description: Describe the observed behavior.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Minimal reproduction
+      description: Commands, API requests, or a small code example that reproduces the issue.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: GMF Core version
+      placeholder: v0.1.0 or commit SHA
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      placeholder: OS, Go version, Docker version, PostgreSQL version, SDK/runtime details
+  - type: textarea
+    id: logs
+    attributes:
+      label: Safe logs
+      description: Include only sanitized logs with secrets and private identifiers removed.
+      render: shell
