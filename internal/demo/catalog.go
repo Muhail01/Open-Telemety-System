@@ -1,6 +1,6 @@
 package demo
 
-import "github.com/Muhail01/Open-Telemety-System/internal/core"
+import "github.com/Muhail01/GMF-Core/internal/core"
 
 type CatalogProvider struct {
 	Items []core.Candidate
