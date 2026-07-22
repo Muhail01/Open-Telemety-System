@@ -18,8 +18,14 @@ jobs:
         run: go test ./internal/core
       - name: Test HTTP API
         run: go test ./internal/httpapi
-      - name: Test remaining packages
-        run: go test ./internal/demo ./internal/memory ./internal/postgres ./cmd/...
+      - name: Test demo
+        run: go test ./internal/demo
+      - name: Test memory adapter
+        run: go test ./internal/memory
+      - name: Test PostgreSQL adapter
+        run: go test ./internal/postgres
+      - name: Test command
+        run: go test ./cmd/...
       - name: Vet
         run: go vet ./...
 
