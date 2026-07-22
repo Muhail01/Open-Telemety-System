@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/Muhail01/Open-Telemety-System/internal/core"
+	"github.com/Muhail01/GMF-Core/internal/core"
 )
 
 type Server struct {
