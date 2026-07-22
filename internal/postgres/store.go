@@ -8,6 +8,7 @@ import (
 	"fmt"
 
 	"github.com/Muhail01/Open-Telemety-System/internal/core"
+	"github.com/Muhail01/Open-Telemety-System/internal/outbox"
 	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
@@ -133,6 +134,59 @@ func (s *Store) SaveEvent(event core.Event) (bool, error) {
 		return false, err
 	}
 	return false, nil
+}
+
+func (s *Store) FetchPending(ctx context.Context, limit int) ([]outbox.Message, error) {
+	if s == nil || s.db == nil {
+		return nil, fmt.Errorf("postgres store is not configured")
+	}
+	if limit <= 0 {
+		limit = 100
+	}
+	rows, err := s.db.QueryContext(ctx,
+		`SELECT id, topic, aggregate_key, payload, created_at
+		 FROM gmf_outbox
+		 WHERE delivered_at IS NULL
+		 ORDER BY id
+		 LIMIT $1`, limit,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("query pending outbox: %w", err)
+	}
+	defer rows.Close()
+
+	messages := make([]outbox.Message, 0, limit)
+	for rows.Next() {
+		var message outbox.Message
+		if err := rows.Scan(&message.ID, &message.Topic, &message.AggregateKey, &message.Payload, &message.CreatedAt); err != nil {
+			return nil, fmt.Errorf("scan outbox message: %w", err)
+		}
+		messages = append(messages, message)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("iterate outbox messages: %w", err)
+	}
+	return messages, nil
+}
+
+func (s *Store) MarkDelivered(ctx context.Context, id int64) error {
+	if s == nil || s.db == nil {
+		return fmt.Errorf("postgres store is not configured")
+	}
+	result, err := s.db.ExecContext(ctx,
+		`UPDATE gmf_outbox SET delivered_at = now() WHERE id = $1 AND delivered_at IS NULL`, id,
+	)
+	if err != nil {
+		return fmt.Errorf("mark outbox delivered: %w", err)
+	}
+	rows, err := result.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("read outbox acknowledgement result: %w", err)
+	}
+	if rows == 0 {
+		return fmt.Errorf("outbox message %d is missing or already delivered", id)
+	}
+	return nil
 }
 
 func nullable(value string) any {
