@@ -7,8 +7,8 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/Muhail01/Open-Telemety-System/internal/core"
-	"github.com/Muhail01/Open-Telemety-System/internal/outbox"
+	"github.com/Muhail01/GMF-Core/internal/core"
+	"github.com/Muhail01/GMF-Core/internal/outbox"
 	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
