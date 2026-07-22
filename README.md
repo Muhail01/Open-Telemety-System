@@ -1,6 +1,6 @@
-# Open Telemetry System
+# GMF Core
 
-Open Telemetry System is a vendor-neutral, open-source decisioning, recommendation, telemetry, and organic ranking engine extracted from production-oriented marketplace architecture.
+GMF Core is a vendor-neutral, open-source decisioning, recommendation, telemetry, and organic ranking engine extracted from production-oriented marketplace architecture.
 
 It is designed around an explainable online decision pipeline:
 
@@ -112,7 +112,7 @@ See `docs/ARCHITECTURE.md`, `docs/OPEN_SOURCE_BOUNDARY.md`, and `docs/ROADMAP.md
 
 ## Status
 
-This repository is the standalone public extraction of reusable recommendation/decisioning infrastructure originally developed while building GILLZY. The project is being hardened for its first `v0.1.0` release.
+This repository is the standalone public extraction of reusable recommendation/decisioning infrastructure originally developed while building GILLZY. The project is being prepared for its first `v0.1.0` release.
 
 ## License
 
