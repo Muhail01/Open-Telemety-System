@@ -5,6 +5,13 @@ on:
   pull_request:
 
 jobs:
+  public-boundary-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Scan for secrets and private deployment identifiers
+        run: sh scripts/audit_public_repo.sh
+
   go:
     runs-on: ubuntu-latest
     steps:
@@ -50,3 +57,4 @@ jobs:
           cache-dependency-path: sdk/typescript/package-lock.json
       - run: npm ci
       - run: npm run typecheck
+      - run: npm audit --audit-level=high
