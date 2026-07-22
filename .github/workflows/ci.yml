@@ -13,8 +13,10 @@ jobs:
         with:
           go-version: '1.24.x'
           cache: true
-      - name: Resolve module graph
-        run: go mod tidy
+      - name: Download locked modules
+        run: go mod download
+      - name: Verify module checksums
+        run: go mod verify
       - name: Test core
         run: go test ./internal/core
       - name: Test HTTP API
@@ -25,7 +27,11 @@ jobs:
         run: go test ./internal/memory
       - name: Test PostgreSQL adapter
         run: go test ./internal/postgres
-      - name: Test command
+      - name: Test outbox worker
+        run: go test ./internal/outbox
+      - name: Test observability adapter
+        run: go test ./internal/observability
+      - name: Test commands
         run: go test ./cmd/...
       - name: Vet
         run: go vet ./...
@@ -41,6 +47,6 @@ jobs:
         with:
           node-version: '22'
           cache: 'npm'
-          cache-dependency-path: sdk/typescript/package.json
-      - run: npm install
+          cache-dependency-path: sdk/typescript/package-lock.json
+      - run: npm ci
       - run: npm run typecheck
