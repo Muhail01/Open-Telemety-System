@@ -58,3 +58,46 @@ jobs:
       - run: npm ci
       - run: npm run typecheck
       - run: npm audit --audit-level=high
+
+  docker-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Start clean reference stack
+        run: |
+          set -euo pipefail
+          docker compose up -d --build
+      - name: Verify API, persistence, lookup and telemetry
+        shell: bash
+        run: |
+          set -euo pipefail
+          trap 'docker compose logs --no-color; docker compose down -v' EXIT
+
+          ready=0
+          for attempt in $(seq 1 45); do
+            if curl -fsS http://127.0.0.1:8080/healthz >/tmp/health.json; then
+              ready=1
+              break
+            fi
+            sleep 2
+          done
+          test "$ready" -eq 1
+
+          curl -fsS -X POST http://127.0.0.1:8080/v1/recommendations \
+            -H 'Content-Type: application/json' \
+            -d '{"surface":"home","session_id":"docker-smoke","limit":3}' \
+            >/tmp/decision.json
+
+          decision_id=$(python3 -c 'import json; d=json.load(open("/tmp/decision.json")); assert d["decision_id"]; assert d["items"]; print(d["decision_id"])')
+          item_id=$(python3 -c 'import json; d=json.load(open("/tmp/decision.json")); print(d["items"][0]["item_id"])')
+
+          curl -fsS "http://127.0.0.1:8080/v1/decisions/${decision_id}" >/tmp/lookup.json
+          python3 -c 'import json; a=json.load(open("/tmp/decision.json")); b=json.load(open("/tmp/lookup.json")); assert a["decision_id"] == b["decision_id"]; assert a["items"] == b["items"]'
+
+          curl -fsS -X POST http://127.0.0.1:8080/v1/events \
+            -H 'Content-Type: application/json' \
+            -d "{\"event_id\":\"docker-smoke-event\",\"event_type\":\"recommendation_impression\",\"session_id\":\"docker-smoke\",\"decision_id\":\"${decision_id}\",\"item_id\":\"${item_id}\",\"surface\":\"home\"}" \
+            >/tmp/event.json
+          python3 -c 'import json; d=json.load(open("/tmp/event.json")); assert d["accepted"] is True; assert d["duplicate"] is False'
+
+          docker compose ps
