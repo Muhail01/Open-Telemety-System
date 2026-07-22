@@ -2,6 +2,7 @@ package httpapi_test
 
 import (
 	"bytes"
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -35,6 +36,41 @@ func TestRecommendationsEndpoint(t *testing.T) {
 	}
 	if !strings.Contains(res.Body.String(), `"decision_id"`) || !strings.Contains(res.Body.String(), `"items"`) {
 		t.Fatalf("unexpected response: %s", res.Body.String())
+	}
+}
+
+func TestDecisionLookupReturnsPersistedDecision(t *testing.T) {
+	handler := testServer()
+	createReq := httptest.NewRequest(http.MethodPost, "/v1/recommendations", bytes.NewBufferString(`{"surface":"home","session_id":"lookup-session","limit":2}`))
+	createRes := httptest.NewRecorder()
+	handler.ServeHTTP(createRes, createReq)
+	if createRes.Code != http.StatusOK {
+		t.Fatalf("create status=%d body=%s", createRes.Code, createRes.Body.String())
+	}
+	var decision core.Decision
+	if err := json.Unmarshal(createRes.Body.Bytes(), &decision); err != nil {
+		t.Fatal(err)
+	}
+	if decision.DecisionID == "" {
+		t.Fatal("expected decision_id")
+	}
+
+	lookupReq := httptest.NewRequest(http.MethodGet, "/v1/decisions/"+decision.DecisionID, nil)
+	lookupRes := httptest.NewRecorder()
+	handler.ServeHTTP(lookupRes, lookupReq)
+	if lookupRes.Code != http.StatusOK {
+		t.Fatalf("lookup status=%d body=%s", lookupRes.Code, lookupRes.Body.String())
+	}
+	if !strings.Contains(lookupRes.Body.String(), decision.DecisionID) {
+		t.Fatalf("lookup response missing decision id: %s", lookupRes.Body.String())
+	}
+}
+
+func TestDecisionLookupReturnsNotFound(t *testing.T) {
+	res := httptest.NewRecorder()
+	testServer().ServeHTTP(res, httptest.NewRequest(http.MethodGet, "/v1/decisions/missing", nil))
+	if res.Code != http.StatusNotFound {
+		t.Fatalf("status=%d body=%s", res.Code, res.Body.String())
 	}
 }
 
