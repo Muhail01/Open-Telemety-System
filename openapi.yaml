@@ -1,6 +1,6 @@
 openapi: 3.1.0
 info:
-  title: Open Telemetry System API
+  title: GMF Core API
   version: 0.1.0
   description: Vendor-neutral organic recommendation decisioning and telemetry API.
 servers:

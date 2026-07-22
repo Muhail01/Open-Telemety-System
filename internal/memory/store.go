@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/Muhail01/Open-Telemety-System/internal/core"
+	"github.com/Muhail01/GMF-Core/internal/core"
 )
 
 type Store struct {

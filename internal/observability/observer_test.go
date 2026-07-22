@@ -4,8 +4,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Muhail01/Open-Telemety-System/internal/core"
-	"github.com/Muhail01/Open-Telemety-System/internal/observability"
+	"github.com/Muhail01/GMF-Core/internal/core"
+	"github.com/Muhail01/GMF-Core/internal/observability"
 )
 
 type record struct {

@@ -5,7 +5,7 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/Muhail01/Open-Telemety-System/internal/outbox"
+	"github.com/Muhail01/GMF-Core/internal/outbox"
 )
 
 type fakeStore struct {

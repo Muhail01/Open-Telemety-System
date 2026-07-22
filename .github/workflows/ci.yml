@@ -1,4 +1,4 @@
-name: open-telemetry-system-ci
+name: gmf-core-ci
 
 on:
   push:

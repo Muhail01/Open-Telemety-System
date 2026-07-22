@@ -8,8 +8,8 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/Muhail01/Open-Telemety-System/internal/outbox"
-	pgstore "github.com/Muhail01/Open-Telemety-System/internal/postgres"
+	"github.com/Muhail01/GMF-Core/internal/outbox"
+	pgstore "github.com/Muhail01/GMF-Core/internal/postgres"
 )
 
 func main() {

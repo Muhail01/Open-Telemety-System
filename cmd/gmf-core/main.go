@@ -7,11 +7,11 @@ import (
 	"os"
 	"time"
 
-	"github.com/Muhail01/Open-Telemety-System/internal/core"
-	"github.com/Muhail01/Open-Telemety-System/internal/demo"
-	"github.com/Muhail01/Open-Telemety-System/internal/httpapi"
-	"github.com/Muhail01/Open-Telemety-System/internal/memory"
-	pgstore "github.com/Muhail01/Open-Telemety-System/internal/postgres"
+	"github.com/Muhail01/GMF-Core/internal/core"
+	"github.com/Muhail01/GMF-Core/internal/demo"
+	"github.com/Muhail01/GMF-Core/internal/httpapi"
+	"github.com/Muhail01/GMF-Core/internal/memory"
+	pgstore "github.com/Muhail01/GMF-Core/internal/postgres"
 )
 
 func main() {
@@ -25,9 +25,9 @@ func main() {
 		}
 		defer postgresStore.Close()
 		store = postgresStore
-		log.Printf("Open Telemetry System storage: PostgreSQL")
+		log.Printf("GMF Core storage: PostgreSQL")
 	} else {
-		log.Printf("Open Telemetry System storage: in-memory")
+		log.Printf("GMF Core storage: in-memory")
 	}
 
 	engine := core.Engine{
@@ -47,7 +47,7 @@ func main() {
 		addr = ":8080"
 	}
 	server := httpapi.Server{Engine: engine}
-	log.Printf("Open Telemetry System listening on %s", addr)
+	log.Printf("GMF Core listening on %s", addr)
 	if err := http.ListenAndServe(addr, server.Handler()); err != nil {
 		log.Fatal(err)
 	}
