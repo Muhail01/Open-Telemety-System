@@ -1,0 +1,124 @@
+openapi: 3.1.0
+info:
+  title: Open Telemetry System API
+  version: 0.1.0
+  description: Vendor-neutral organic recommendation decisioning and telemetry API.
+servers:
+  - url: http://localhost:8080
+paths:
+  /healthz:
+    get:
+      responses:
+        '200':
+          description: Healthy
+  /v1/recommendations:
+    post:
+      summary: Produce an explainable organic recommendation decision
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DecisionRequest'
+      responses:
+        '200':
+          description: Decision
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Decision'
+        '400':
+          description: Invalid request
+  /v1/events:
+    post:
+      summary: Ingest an idempotent telemetry event
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Event'
+      responses:
+        '202':
+          description: Accepted or duplicate event
+        '400':
+          description: Rejected event
+components:
+  schemas:
+    DecisionRequest:
+      type: object
+      required: [surface]
+      properties:
+        surface:
+          type: string
+        session_id:
+          type: string
+        user_id:
+          type: string
+        limit:
+          type: integer
+          minimum: 1
+        context:
+          type: object
+          additionalProperties: true
+    DecisionItem:
+      type: object
+      required: [item_id, rank, score, reason_code]
+      properties:
+        item_id:
+          type: string
+        rank:
+          type: integer
+        score:
+          type: number
+        reason_code:
+          type: string
+        breakdown:
+          type: object
+          additionalProperties:
+            type: number
+    Decision:
+      type: object
+      required: [decision_id, surface, items, fallback, reason_codes, created_at]
+      properties:
+        decision_id:
+          type: string
+        surface:
+          type: string
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/DecisionItem'
+        fallback:
+          type: boolean
+        reason_codes:
+          type: array
+          items:
+            type: string
+        created_at:
+          type: string
+          format: date-time
+    Event:
+      type: object
+      required: [event_id, event_type]
+      properties:
+        event_id:
+          type: string
+        event_type:
+          type: string
+        occurred_at:
+          type: string
+          format: date-time
+        session_id:
+          type: string
+        user_id:
+          type: string
+        decision_id:
+          type: string
+        item_id:
+          type: string
+        surface:
+          type: string
+        properties:
+          type: object
+          additionalProperties: true

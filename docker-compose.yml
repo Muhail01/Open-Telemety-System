@@ -1,0 +1,30 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: gmf_core
+      POSTGRES_USER: gmf
+      POSTGRES_PASSWORD: gmf
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U gmf -d gmf_core"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+    volumes:
+      - gmf-postgres:/var/lib/postgresql/data
+      - ./migrations/001_init.sql:/docker-entrypoint-initdb.d/001_init.sql:ro
+
+  gmf-core:
+    build: .
+    environment:
+      GMF_CORE_ADDR: ":8080"
+      DATABASE_URL: "postgres://gmf:gmf@postgres:5432/gmf_core?sslmode=disable"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+
+volumes:
+  gmf-postgres:
