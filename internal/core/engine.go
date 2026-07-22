@@ -12,11 +12,13 @@ type Engine struct {
 	Scorer            Scorer
 	Policy            Policy
 	Store             Store
+	Observer          Observer
 	MaxPerGroup       int
 	ExplorationPolicy *ExplorationPolicy
 }
 
 func (e Engine) Decide(req DecisionRequest) (Decision, error) {
+	startedAt := time.Now()
 	if e.Provider == nil || e.Scorer == nil || e.Policy == nil || e.Store == nil {
 		return Decision{}, fmt.Errorf("engine dependencies are not configured")
 	}
@@ -39,10 +41,10 @@ func (e Engine) Decide(req DecisionRequest) (Decision, error) {
 	diversified := RerankDiversity(filtered, len(filtered), e.MaxPerGroup)
 
 	var final []RankedCandidate
+	explorationUsed := false
 	if e.ExplorationPolicy != nil {
-		var explored bool
-		final, explored = ApplyExploration(req, diversified, req.Limit, *e.ExplorationPolicy)
-		if explored {
+		final, explorationUsed = ApplyExploration(req, diversified, req.Limit, *e.ExplorationPolicy)
+		if explorationUsed {
 			reasons = append(reasons, "EXPLORATION_APPLIED")
 		}
 	} else {
@@ -72,6 +74,16 @@ func (e Engine) Decide(req DecisionRequest) (Decision, error) {
 	if err := e.Store.SaveDecision(decision); err != nil {
 		return Decision{}, fmt.Errorf("save decision: %w", err)
 	}
+	if e.Observer != nil {
+		e.Observer.RecordDecision(DecisionObservation{
+			Surface:         req.Surface,
+			Duration:        time.Since(startedAt),
+			CandidateCount:  len(candidates),
+			ServedItemCount: len(decision.Items),
+			Fallback:        decision.Fallback,
+			ExplorationUsed: explorationUsed,
+		})
+	}
 	return decision, nil
 }
 
@@ -85,7 +97,14 @@ func (e Engine) Ingest(event Event) (bool, error) {
 	if event.OccurredAt.IsZero() {
 		event.OccurredAt = time.Now().UTC()
 	}
-	return e.Store.SaveEvent(event)
+	duplicate, err := e.Store.SaveEvent(event)
+	if err != nil {
+		return false, err
+	}
+	if e.Observer != nil {
+		e.Observer.RecordEvent(EventObservation{EventType: event.EventType, Duplicate: duplicate})
+	}
+	return duplicate, nil
 }
 
 func newDecisionID() string {
