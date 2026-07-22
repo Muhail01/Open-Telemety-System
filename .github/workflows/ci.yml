@@ -14,8 +14,14 @@ jobs:
           go-version: '1.24.x'
           cache: true
       - run: go mod download
-      - run: go test ./...
-      - run: go vet ./...
+      - name: Test core
+        run: go test ./internal/core
+      - name: Test HTTP API
+        run: go test ./internal/httpapi
+      - name: Test remaining packages
+        run: go test ./internal/demo ./internal/memory ./internal/postgres ./cmd/...
+      - name: Vet
+        run: go vet ./...
 
   typescript:
     runs-on: ubuntu-latest
