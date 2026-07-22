@@ -1,4 +1,4 @@
-module github.com/Muhail01/Open-Telemety-System
+module github.com/Muhail01/GMF-Core
 
 go 1.24
 
