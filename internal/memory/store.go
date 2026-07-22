@@ -46,3 +46,8 @@ func (s *Store) Decision(id string) (core.Decision, bool) {
 	decision, ok := s.decisions[id]
 	return decision, ok
 }
+
+func (s *Store) DecisionByID(id string) (core.Decision, bool, error) {
+	decision, ok := s.Decision(id)
+	return decision, ok, nil
+}
