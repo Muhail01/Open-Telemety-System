@@ -13,7 +13,8 @@ jobs:
         with:
           go-version: '1.24.x'
           cache: true
-      - run: go mod download
+      - name: Resolve module graph
+        run: go mod tidy
       - name: Test core
         run: go test ./internal/core
       - name: Test HTTP API
