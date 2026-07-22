@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"fmt"
 
 	"github.com/Muhail01/Open-Telemety-System/internal/core"
@@ -63,6 +64,27 @@ func (s *Store) SaveDecision(decision core.Decision) error {
 		return fmt.Errorf("insert decision outbox: %w", err)
 	}
 	return tx.Commit()
+}
+
+func (s *Store) DecisionByID(id string) (core.Decision, bool, error) {
+	if s == nil || s.db == nil {
+		return core.Decision{}, false, fmt.Errorf("postgres store is not configured")
+	}
+	var payload []byte
+	err := s.db.QueryRowContext(context.Background(),
+		`SELECT payload FROM gmf_decisions WHERE decision_id = $1`, id,
+	).Scan(&payload)
+	if errors.Is(err, sql.ErrNoRows) {
+		return core.Decision{}, false, nil
+	}
+	if err != nil {
+		return core.Decision{}, false, fmt.Errorf("lookup decision: %w", err)
+	}
+	var decision core.Decision
+	if err := json.Unmarshal(payload, &decision); err != nil {
+		return core.Decision{}, false, fmt.Errorf("decode decision: %w", err)
+	}
+	return decision, true, nil
 }
 
 func (s *Store) SaveEvent(event core.Event) (bool, error) {
